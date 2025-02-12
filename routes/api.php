@@ -30,6 +30,7 @@ Route::middleware([JwtMiddleware::class])->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
 
     //checklist
+    Route::get('checklist', [ChecklistController::class, 'list']);
     Route::get('checklist/{id}', [ChecklistController::class, 'show']);
     Route::delete('checklist/{id}', [ChecklistController::class, 'delete']);
     Route::post('checklist/{id}', [ChecklistController::class, 'update']);

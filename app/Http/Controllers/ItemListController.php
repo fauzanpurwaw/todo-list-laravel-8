@@ -21,7 +21,7 @@ class ItemListController extends Controller
             $validator = Validator::make($request->all(), [
                 'checklist_id' => 'required|integer',
                 'content' => 'required|string',
-                'is_done' => 'required|integer',
+                'is_done' => 'nullable|integer',
             ]);
 
             $validator->validate();
@@ -30,11 +30,16 @@ class ItemListController extends Controller
             $itemList = ItemList::create([
                 'checklist_id' => $request->checklist_id,
                 'content' => $request->content,
-                'is_done' => $request->is_done,
+                'is_done' => $request->is_done ?? 0,
             ]);
             DB::commit();
 
-            return response()->json($itemList, 200);
+            $response = [
+                'code' => 200,
+                'data' => $itemList
+            ];
+
+            return response()->json($response, 200);
         } catch (ValidationException $e) {
             $response = [
                 'errors' => [
@@ -49,10 +54,11 @@ class ItemListController extends Controller
     public function show($id)
     {
         try {
-            $itemList = ItemList::findOrFail($id)->get()->first();
+            $itemList = ItemList::findOrFail($id)->select('id', 'checklist_id', 'content')->get()->first();
 
             $response = [
-                'itemList' => $itemList
+                'code' => 200,
+                'data' => $itemList
             ];
 
             return response()->json($response, 200);
@@ -85,6 +91,11 @@ class ItemListController extends Controller
             $itemList->save();
             DB::commit();
 
+            $response = [
+                'code' => 200,
+                'data' => $itemList
+            ];
+
             return response()->json($itemList, 200);
         } catch (ValidationException $e) {
             $response = [
@@ -106,8 +117,8 @@ class ItemListController extends Controller
             DB::commit();
 
             $response = [
+                'code' => 200,
                 'message' => 'Data Has Been Deleted',
-                'itemList' => $itemList
             ];
 
             return response()->json($response, 200);

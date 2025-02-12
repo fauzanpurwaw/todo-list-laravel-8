@@ -41,13 +41,36 @@ class ChecklistController extends Controller
         }
     }
 
+    public function list()
+    {
+        try {
+            $checklist = Checklist::select('id', 'title')->with('items')->get();
+
+            $response = [
+                'code' => 200,
+                'data' => $checklist
+            ];
+
+            return response()->json($response, 200);
+        } catch (ValidationException $e) {
+            $response = [
+                'errors' => [
+                    'code'    => 422,
+                    'message' => $e->getMessage()
+                ]
+            ];
+            return response()->json($response, 422);
+        }
+    }
+
     public function show($id)
     {
         try {
-            $checklist = Checklist::findOrFail($id)->with('items')->get()->first();
+            $checklist = Checklist::findOrFail($id)->select('id', 'title')->with('items')->get()->first();
 
             $response = [
-                'checklist' => $checklist
+                'code' => 200,
+                'data' => $checklist
             ];
 
             return response()->json($response, 200);
@@ -78,6 +101,11 @@ class ChecklistController extends Controller
             $checklist->save();
             DB::commit();
 
+            $response = [
+                'code' => 200,
+                'data' => $checklist
+            ];
+
             return response()->json($checklist, 200);
         } catch (ValidationException $e) {
             $response = [
@@ -99,8 +127,8 @@ class ChecklistController extends Controller
             DB::commit();
 
             $response = [
-                'message' => 'Data Has Been Deleted',
-                'checklist' => $checklist
+                'code' => 200,
+                'message' => 'Data Has Been Deleted'
             ];
 
             return response()->json($response, 200);
